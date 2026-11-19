@@ -1,4 +1,4 @@
-import { fetchNotes } from '@/lib/api';
+import { fetchNotes } from '@/lib/api/api';
 import {
   dehydrate,
   HydrationBoundary,
@@ -6,9 +6,35 @@ import {
 } from '@tanstack/react-query';
 import NotesClient from './Notes.client';
 import { NoteTag } from '@/types/note';
+import { Metadata } from 'next';
 
 interface NotesProps {
   params: Promise<{ slug: string[] }>;
+}
+
+export async function generateMetadata({
+  params,
+}: NotesProps): Promise<Metadata> {
+  const { slug } = await params;
+  const filter = slug[0] === 'all' ? 'All notes' : `${slug[0]} notes`;
+
+  return {
+    title: `${filter} | NoteHub`,
+    description: `Browse ${filter.toLowerCase()} in NoteHub`,
+    openGraph: {
+      title: `${filter} | NoteHub`,
+      description: `Browse ${filter.toLowerCase()} in NoteHub`,
+      url: `https://notehub.com/notes/filter/${slug.join('/')}`,
+      images: [
+        {
+          url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+          width: 1200,
+          height: 630,
+          alt: filter,
+        },
+      ],
+    },
+  };
 }
 
 export default async function Notes({ params }: NotesProps) {
